@@ -35,15 +35,27 @@ async def create_workshop(workshop: Workshop):
 @app.get("/workshops/")
 async def get_workshops():
     return list(workshops_collection.find({}, {"_id": 0}))
-workshop = Workshop("12/03/2014", "Shutl")
-jane = Student("Jane Doe", "I am trying to learn programming and need some help")
-lena = Student("Lena Smith", "I am really excited about learning to program!")
-vicky = Instructor("Vicky Python", "I want to help people learn coding.")
-nicole = Instructor("Nicole McMillan", "I have been programming for 5 years in Python and want to spread the love")
-vicky.add_skill("HTML")
-vicky.add_skill("JavaScript")
-nicole.add_skill("Python")
-workshop.add_participant(jane)
-workshop.add_participant(lena)
-workshop.add_participant(vicky)
-workshop.add_participant(nicole)
+
+# ✅ Correct Instantiations
+workshop = Workshop(date="12/03/2014", subject="Shutl")
+
+jane = Student(full_name="Jane Doe", reason="I am trying to learn programming and need some help")
+lena = Student(full_name="Lena Smith", reason="I am really excited about learning to program!")
+
+vicky = Instructor(
+    full_name="Vicky Python",
+    bio="I want to help people learn coding.",
+    skills=["HTML", "JavaScript"]
+)
+
+nicole = Instructor(
+    full_name="Nicole McMillan",
+    bio="I have been programming for 5 years in Python and want to spread the love",
+    skills=["Python"]
+)
+
+# ✅ Add participants correctly
+workshop.students.extend([jane, lena])
+workshop.instructors.extend([vicky, nicole])
+
+print(workshop)
