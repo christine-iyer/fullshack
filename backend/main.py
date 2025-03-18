@@ -1,12 +1,21 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import pymongo
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # ✅ Change "*" to frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb+srv://edithbird:C0nfidenceClub!@cluster0.w3guwmj.mongodb.net/pyproj?retryWrites=true&w=majority", tlsAllowInvalidCertificates=True )
 db = client["codebar"]
 workshops_collection = db["workshops"]
 
