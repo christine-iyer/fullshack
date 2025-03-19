@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import pymongo
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = FastAPI()
 
 app.add_middleware(
@@ -15,7 +18,9 @@ app.add_middleware(
 )
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb+srv://<secretstuff>@cluster0.w3guwmj.mongodb.net/pyproj?retryWrites=true&w=majority", tlsAllowInvalidCertificates=True )
+MONGO_URI = os.getenv("MONGO_URI")
+
+client = pymongo.MongoClient(MONGO_URI)
 db = client["codebar"]
 workshops_collection = db["workshops"]
 
