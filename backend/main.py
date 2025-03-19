@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List
 import pymongo
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,6 +24,14 @@ MONGO_URI = os.getenv("MONGO_URI")
 client = pymongo.MongoClient(MONGO_URI)
 db = client["codebar"]
 workshops_collection = db["workshops"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Models
 class Student(BaseModel):
@@ -73,3 +82,4 @@ workshop.students.extend([jane, lena])
 workshop.instructors.extend([vicky, nicole])
 
 print(workshop)
+print(f"Loaded MONGO_URI: {MONGO_URI}") 
