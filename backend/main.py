@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb+srv://edithbird:C0nfidenceClub!@cluster0.w3guwmj.mongodb.net/pyproj?retryWrites=true&w=majority", tlsAllowInvalidCertificates=True )
+client = pymongo.MongoClient("mongodb+srv://<secretstuff>@cluster0.w3guwmj.mongodb.net/pyproj?retryWrites=true&w=majority", tlsAllowInvalidCertificates=True )
 db = client["codebar"]
 workshops_collection = db["workshops"]
 
