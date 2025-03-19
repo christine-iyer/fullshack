@@ -81,5 +81,6 @@ nicole = Instructor(
 workshop.students.extend([jane, lena])
 workshop.instructors.extend([vicky, nicole])
 
+print(f"Loaded MONGO_URI: {MONGO_URI}")
 
 
