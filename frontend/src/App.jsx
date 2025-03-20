@@ -4,6 +4,8 @@ import axios from "axios";
 function App() {
   const [workshops, setWorkshops] = useState([]);
   const [newWorkshop, setNewWorkshop] = useState({ date: "", subject: "" });
+  const [students, setStudents] = useState([]);
+  const [newStudent, setNewStudent] = useState({ full_name: "", reason: "" });
 
   useEffect(() => {
     axios

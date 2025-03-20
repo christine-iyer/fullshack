@@ -31,6 +31,8 @@ if not MONGO_URI:
 client = pymongo.MongoClient(MONGO_URI, tlsAllowInvalidCertificates=True)
 db = client["codebar"]
 workshops_collection = db["workshops"]
+students_collection = db["students"]
+instructors_collection = db["instructors"]
 
 # Models
 class Student(BaseModel):
@@ -58,5 +60,21 @@ async def create_workshop(workshop: Workshop):
 async def get_workshops():
     return list(workshops_collection.find({}, {"_id": 0}))
 
-# ✅ Debugging: Print Loaded MongoDB Connection
-print(f"✅ Connected to MongoDB: {MONGO_URI}")
+@app.post("/students/")
+async def create_student(student: Student):
+    students_collection.insert_one(student.dict())
+    return {"message": "Student created successfully!"}
+
+@app.get("/students/")
+async def get_students():
+    return list(students_collection.find({}, {"_id": 0}))
+
+@app.post("/instructors/")
+async def create_instructor(instructor: Instructor):
+    instructors_collection.insert_one(instructor.dict())
+    return {"message": "Instructor created successfully!"}
+
+@app.get("/instructors/")
+async def get_instructors():
+    return list(instructors_collection.find({}, {"_id": 0}))
+
