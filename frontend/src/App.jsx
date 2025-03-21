@@ -1,156 +1,135 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./App.css"; // Make sure to create this file
+
+const fallbackStudents = [
+  { full_name: "Laura", reason: "Edification" },
+  { full_name: "Chris", reason: "Remedial" },
+];
+
+const fallbackInstructors = [
+  { full_name: "Proust", bio: "I write and read", skills: [] },
+  { full_name: "Desmond", bio: "", skills: ["bilingual", "written word"] },
+  { full_name: "Hamilton", bio: "", skills: [] },
+  { full_name: "Norton", bio: "", skills: [] },
+];
+
+const fallbackWorkshops = [
+  { date: "2025-03-01", subject: "Hindi", instructors: [{ full_name: "Norton" }], students: [] },
+  { date: "2025-03-02", subject: "PMBA", instructors: [{ full_name: "Desmond" }], students: [] },
+  { date: "2025-03-03", subject: "RTP", instructors: [{ full_name: "Proust" }], students: [] },
+  { date: "2025-03-04", subject: "Federalist", instructors: [{ full_name: "Hamilton" }], students: [] },
+];
 
 function App() {
   const [workshops, setWorkshops] = useState([]);
   const [students, setStudents] = useState([]);
-  const [instructors, setInstructors] = useState([])
-  const [newWorkshop, setNewWorkshop] = useState({ date: "", subject: "" });
-  const [newStudent, setNewStudent] = useState({ full_name: "", reason: "" });
-  const [newInstructor, setNewInstructor] = useState({ full_name: "", bio: "", skills: [] });
-
-  const handleInputChange = (e) => {
-    setNewWorkshop({ ...newWorkshop, [e.target.name]: e.target.value });
-  };
-  const handleStudentInputChange = (e) => {
-    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
-  };
-  const handleInstructorInputChange = (e) => {
-    setNewInstructor({ ...newInstructor, [e.target.name]: e.target.value });
-  };
-
+  const [instructors, setInstructors] = useState([]);
+  const [selectedWorkshopIndex, setSelectedWorkshopIndex] = useState(0);
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [selectedInstructor, setSelectedInstructor] = useState("");
 
   useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/workshops")
-      .then((response) => setWorkshops(response.data))
-      .catch((error) => console.error("Error fetching Workshops:", error));
-  }, []);
+      .then((res) => setWorkshops(res.data))
+      .catch(() => setWorkshops(fallbackWorkshops));
 
-  useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/students")
-      .then((response) => setStudents(response.data))
-      .catch((error) => console.error("Error fetching Workshops:", error));
-  }, []);
+      .then((res) => setStudents(res.data))
+      .catch(() => setStudents(fallbackStudents));
 
-  useEffect(() => {
     axios
       .get("http://127.0.0.1:8000/instructors")
-      .then((response) => setInstructors(response.data))
-      .catch((error) => console.error("Error fetching Instructors:", error));
+      .then((res) => setInstructors(res.data))
+      .catch(() => setInstructors(fallbackInstructors));
   }, []);
 
-  const addStudent = async () => {
-    try {
-      await axios.post("http://127.0.0.1:8000/students", newStudent);
-      setStudents([...students, newStudent]);
-      setNewStudent({ full_name: "", reason: "" });
-    } catch (error) {
-      console.error("Error adding student:", error);
+  const assignStudent = () => {
+    if (!selectedStudent) return;
+    const updated = [...workshops];
+    const studentObj = students.find((s) => s.full_name === selectedStudent);
+    if (studentObj) {
+      updated[selectedWorkshopIndex].students.push(studentObj);
+      setWorkshops(updated);
     }
+    setSelectedStudent("");
   };
 
-  const addWorkshop = async () => {
-    try {
-      await axios.post("http://127.0.0.1:8000/workshops", newWorkshop);
-      setWorkshops([...workshops, newWorkshop]);
-      setNewWorkshop({ date: "", subject: "" });
-    } catch (error) {
-      console.error("Error adding workshop:", error);
+  const assignInstructor = () => {
+    if (!selectedInstructor) return;
+    const updated = [...workshops];
+    const instructorObj = instructors.find((i) => i.full_name === selectedInstructor);
+    if (instructorObj) {
+      updated[selectedWorkshopIndex].instructors.push(instructorObj);
+      setWorkshops(updated);
     }
-  };
-
-  const addInstructor = async () => {
-    try {
-      await axios.post("http://127.0.0.1:8000/instructors", newInstructor);
-      setInstructors([...instructors, newInstructor]);
-      setNewInstructor({ full_name: "", bio: "" });
-    } catch (error) {
-      console.error("Error adding instructor:", error);
-    }
+    setSelectedInstructor("");
   };
 
   return (
-    <div>
-      <div>
-        <h1>Codebar Workshops</h1>
-        <input
-          type="text"
-          name="date"
-          value={newWorkshop.date}
-          placeholder="Date"
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="subject"
-          value={newWorkshop.subject}
-          placeholder="Subject"
-          onChange={handleInputChange}
-        />
-        <button onClick={addWorkshop}>Add Workshop</button>
-        <ul>
-          {workshops.map((workshop, index) => (
-            <li key={index}>
-              {workshop.date} - {workshop.subject}
+    <div className="container">
+      <h1>Codebar Workshops</h1>
+
+      <div className="section">
+        <label>Select Workshop:</label>
+        <select
+          value={selectedWorkshopIndex}
+          onChange={(e) => setSelectedWorkshopIndex(Number(e.target.value))}
+        >
+          {workshops.map((ws, idx) => (
+            <option key={idx} value={idx}>
+              {ws.subject}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="section">
+        <label>Assign Student:</label>
+        <select
+          value={selectedStudent}
+          onChange={(e) => setSelectedStudent(e.target.value)}
+        >
+          <option value="">-- Select Student --</option>
+          {students.map((s, i) => (
+            <option key={i} value={s.full_name}>
+              {s.full_name}
+            </option>
+          ))}
+        </select>
+        <button onClick={assignStudent}>Assign</button>
+      </div>
+
+      <div className="section">
+        <label>Assign Instructor:</label>
+        <select
+          value={selectedInstructor}
+          onChange={(e) => setSelectedInstructor(e.target.value)}
+        >
+          <option value="">-- Select Instructor --</option>
+          {instructors.map((i, idx) => (
+            <option key={idx} value={i.full_name}>
+              {i.full_name}
+            </option>
+          ))}
+        </select>
+        <button onClick={assignInstructor}>Assign</button>
+      </div>
+
+      <div className="section">
+        <h2>Workshop Details</h2>
+        <ul className="workshop-list">
+          {workshops.map((ws, idx) => (
+            <li key={idx}>
+              <strong>{ws.subject}</strong> ({ws.date})<br />
+              <em>Instructors:</em> {ws.instructors?.map((i) => i.full_name).join(", ") || "None"}<br />
+              <em>Students:</em> {ws.students?.map((s) => s.full_name).join(", ") || "None"}
             </li>
           ))}
         </ul>
       </div>
-
-      <div>
-        <h1>Codebar Students</h1>
-        <input
-          type="text"
-          name="full_name"
-          value={newStudent.full_name}
-          placeholder="Name"
-          onChange={handleStudentInputChange}
-        />
-        <input
-          type="text"
-          name="reason"
-          value={newStudent.reason}
-          placeholder="Reason"
-          onChange={handleStudentInputChange}
-        />
-        <button onClick={addStudent}>Add Student</button>
-        <ul>
-          {students?.map((student, index) => (
-            <li key={index}>
-              {student.full_name} - {student.reason}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <h1>Codebar Instructors</h1>
-        <input
-          type="text"
-          name="full_name"
-          value={newInstructor.full_name}
-          placeholder="Name"
-          onChange={handleInstructorInputChange}
-        />
-        <input
-          type="text"
-          name="bio"
-          value={newInstructor.bio}
-          placeholder="Bio"
-          onChange={handleInstructorInputChange}
-        />
-        <button onClick={addInstructor}>Add Instructor</button>
-        <ul>
-          {instructors?.map((instructor, index) => (
-            <li key={index}>
-              {instructor.full_name} - {instructor.bio}
-            </li>
-          ))}
-        </ul>
-      </div>
-
     </div>
   );
 }
